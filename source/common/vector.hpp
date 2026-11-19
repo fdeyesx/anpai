@@ -1,7 +1,6 @@
 #pragma once
 #include <iostream>
 #include "errors.hpp"
-using namespace std;
 
 template <typename T>
 class Array;
