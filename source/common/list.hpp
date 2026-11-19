@@ -1,19 +1,42 @@
 #pragma once
 #include <iostream>
 #include "errors.hpp"
-using namespace std;
+
+template <typename T>
+class List;
+
+template <typename T>
+struct Node {
+    T value; Node* next; Node* prev;
+};
+
+template <typename T>
+class Listiterator {
+public:
+    Node<T>* current;
+    Listiterator() { current = nullptr; }
+    ~Listiterator() {}
+    T& operator*() const { return current->value; }
+    bool operator==(const Listiterator& l2) { return current == l2.current; }
+    bool operator!=(const Listiterator& l2) { return current != l2.current; }
+    Listiterator& operator=(const Listiterator& l2) { current = l2.current; return *this; }
+    Listiterator& operator++() { current = current->next; return *this; }
+
+    friend class List;
+};
 
 template <typename T>
 class List {
 protected:
-    struct Node {
-        T value;
-        Node* next; Node* prev;
-    };
-    Node* head; Node* end; int count;
+    Node<T>* head; Node<T>* end; int count;
 
 public:
     List() { head = nullptr; end = nullptr; count = 0; }
+    List(Node<T>* begin): head(begin){
+        int len = 0; Listiterator it; it.current = begin;
+        for (; it.current != nullptr; ++it)len++;
+        end = it.current;
+    }
     virtual ~List() { clear(); }
 
     List(const List& list) {
@@ -25,6 +48,8 @@ public:
             copy = copy->next;
         }
     }
+
+    friend class Listiterator;
 
     const List& operator= (const List& list) {
         if (this == &list) throw SameDataException();
@@ -113,4 +138,6 @@ public:
     }
 
     int getsize() { return count; }
+    Listiterator begin() { Listiterator it; it.current = head; return it; }
+    Listiterator end_it() { Listiterator it; it.current = end; return it; }
 };
