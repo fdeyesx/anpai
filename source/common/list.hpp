@@ -140,4 +140,56 @@ public:
     int getsize() { return count; }
     Listiterator begin() { Listiterator it; it.current = head; return it; }
     Listiterator end_it() { Listiterator it; it.current = end; return it; }
+
+    bool remove(T value) {
+        Node* cur = head;
+        bool result = false;
+        while (cur != nullptr && result == false) {
+            if (cur->value = value && result == false) {
+                if (cur->prev) cur->prev->next = cur->next;
+                else head = cur->next;
+
+                if (cur->next) cur->next->prev = cur->prev;
+                else end = cur->prev;
+
+                delete cur;
+                count--;
+                result = true;
+            }
+            cur = cur->next;
+        }
+        return result;
+    }
+
+    void moveUp(T value) {
+        Node* cur = head;
+        int flag = 0;
+        while (cur != nullptr && flag == 0) {
+            if (cur->value == value && flag == 0) {
+                if (cur->prev != nullptr) {
+                    T temp = cur->value;
+                    cur->value = cur->prev->value;
+                    cur->prev->value = temp;
+                }
+                flag == 1;
+            }
+            cur = cur->next;
+        }
+    }
+
+    void moveDown(T value) {
+        Node* cur = head;
+        int flag = 0;
+        while (cur != nullptr && flag == 0) {
+            if (cur->value == value && flag == 0) {
+                if (cur->next != nullptr) {
+                    T temp = cur->value;
+                    cur->value = cur->next->value;
+                    cur->next->value = temp;
+                }
+                flag == 1;
+            }
+            cur = cur->next;
+        }
+    }
 };
