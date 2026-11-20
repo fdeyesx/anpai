@@ -8,6 +8,8 @@ class List;
 template <typename T>
 struct Node {
     T value; Node* next; Node* prev;
+
+    Node(const T& val, Node<T>* n = nullptr, Node<T>* p = nullptr):value(val), next(n), prev(p) {}
 };
 
 template <typename T>
@@ -19,10 +21,10 @@ public:
     T& operator*() const { return current->value; }
     bool operator==(const Listiterator& l2) { return current == l2.current; }
     bool operator!=(const Listiterator& l2) { return current != l2.current; }
-    Listiterator& operator=(const Listiterator& l2) { current = l2.current; return *this; }
-    Listiterator& operator++() { current = current->next; return *this; }
+    Listiterator<T>& operator=(const Listiterator& l2) { current = l2.current; return *this; }
+    Listiterator<T>& operator++() { current = current->next; return *this; }
 
-    friend class List;
+    friend class List<T>;
 };
 
 template <typename T>
@@ -33,28 +35,28 @@ protected:
 public:
     List() { head = nullptr; end = nullptr; count = 0; }
     List(Node<T>* begin): head(begin){
-        int len = 0; Listiterator it; it.current = begin;
+        int len = 0; Listiterator<T> it; it.current = begin;
         for (; it.current != nullptr; ++it)len++;
         end = it.current;
     }
     virtual ~List() { clear(); }
 
     List(const List& list) {
-        if (list.head == nullptr) throw EmptyDataException();
+        if (list.head == nullptr) throw EmptyContainer();
         head = nullptr; end = nullptr;
-        Node* copy = list.head;
+        Node<T>* copy = list.head;
         while (copy != nullptr) {
             push_back(copy->value);
             copy = copy->next;
         }
     }
 
-    friend class Listiterator;
+    friend class Listiterator<T>;
 
     const List& operator= (const List& list) {
-        if (this == &list) throw SameDataException();
+        if (this == &list) throw SelfAssignment();
 
-        List tmp(list); clear();
+        List<T> tmp(list); clear();
         head = tmp.head;
         end = tmp.end;
         tmp.head = nullptr;
@@ -63,7 +65,7 @@ public:
     }
 
     void push_front(T value) {
-        Node* node = new Node;
+        Node<T>* node = new Node<T>(value, head, nullptr);
         node->value = value;
         node->prev = nullptr;
         node->next = head;
@@ -75,7 +77,7 @@ public:
     }
 
     void push_back(T value) {
-        Node* node = new Node;
+        Node<T>* node = new Node<T>(value, head, nullptr);
         node->value = value;
         node->prev = end;
         node->next = nullptr;
@@ -97,9 +99,9 @@ public:
     }
 
     T pop_front() {
-        if (head == nullptr) throw EmptyDataException();
+        if (head == nullptr) throw EmptyContainer();
         T value = head->value;
-        Node* tmp = head;
+        Node<T>* tmp = head;
         head = head->next;
         if (head != nullptr) head->prev = nullptr;
         else end = nullptr;
@@ -108,9 +110,9 @@ public:
     }
 
     T pop_back() {
-        if (end == nullptr) throw EmptyDataException();
+        if (end == nullptr) throw EmptyContainer();
         T value = end->value;
-        Node* tmp = end;
+        Node<T>* tmp = end;
         end = end->prev;
         if (end != nullptr) end->next = nullptr;
         else head = nullptr;
@@ -119,7 +121,7 @@ public:
     }
 
     friend ostream& operator<< (ostream& out, List& list) {
-        Node* cur = list.head;
+        Node<T>* cur = list.head;
         while (cur != nullptr) {
             out << cur->value << " -> ";
             cur = cur->next;
@@ -130,7 +132,7 @@ public:
 
     void clear() {
         while (head != nullptr) {
-            Node* tmp = head;
+            Node<T>* tmp = head;
             head = head->next;
             delete tmp;
         }
@@ -138,14 +140,14 @@ public:
     }
 
     int getsize() { return count; }
-    Listiterator begin() { Listiterator it; it.current = head; return it; }
-    Listiterator end_it() { Listiterator it; it.current = end; return it; }
+    Listiterator<T> begin() { Listiterator<T> it; it.current = head; return it; }
+    Listiterator<T> end_it() { Listiterator<T> it; it.current = end; return it; }
 
     bool remove(T value) {
-        Node* cur = head;
+        Node<T>* cur = head;
         bool result = false;
         while (cur != nullptr && result == false) {
-            if (cur->value = value && result == false) {
+            if (cur->value == value && result == false) {
                 if (cur->prev) cur->prev->next = cur->next;
                 else head = cur->next;
 
@@ -162,7 +164,7 @@ public:
     }
 
     void moveUp(T value) {
-        Node* cur = head;
+        Node<T>* cur = head;
         int flag = 0;
         while (cur != nullptr && flag == 0) {
             if (cur->value == value && flag == 0) {
@@ -171,14 +173,14 @@ public:
                     cur->value = cur->prev->value;
                     cur->prev->value = temp;
                 }
-                flag == 1;
+                flag = 1;
             }
             cur = cur->next;
         }
     }
 
     void moveDown(T value) {
-        Node* cur = head;
+        Node<T>* cur = head;
         int flag = 0;
         while (cur != nullptr && flag == 0) {
             if (cur->value == value && flag == 0) {
@@ -187,7 +189,7 @@ public:
                     cur->value = cur->next->value;
                     cur->next->value = temp;
                 }
-                flag == 1;
+                flag = 1;
             }
             cur = cur->next;
         }
