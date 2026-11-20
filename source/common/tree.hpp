@@ -31,11 +31,11 @@ public:
 	}
 
 	Node* findNode(Node* node, T value) {
-		if (node == nullptr) return;
+		if (node == nullptr) return nullptr;
 		if (node->value == value) return node;
 
 		for (int i = 0; i < node->children.getsize(); i++) {
-			Node* found = findNode(node->children[i].value);
+			Node* found = findNode(node->children[i], value);
 			if (found) return found;
 		}
 		return nullptr;
