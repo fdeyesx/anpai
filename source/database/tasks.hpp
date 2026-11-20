@@ -51,12 +51,13 @@ public:
 	std::string getDeadlineString() const {
 		if (deadline == 0) return "None\n";
 
-		std::tm* timeinfo = std::localtime(&deadline);
-		int year = timeinfo->tm_year + 1900; 
-		int month = timeinfo->tm_mon + 1; 
-		int day = timeinfo->tm_mday;
-		int hour = timeinfo->tm_hour;
-		int min = timeinfo->tm_min;
+		std::tm timeinfo;
+		localtime_s(&timeinfo, &deadline);
+		int year = timeinfo.tm_year + 1900; 
+		int month = timeinfo.tm_mon + 1;
+		int day = timeinfo.tm_mday;
+		int hour = timeinfo.tm_hour;
+		int min = timeinfo.tm_min;
 
 		std::ostringstream out;
 		out << year << "-";
