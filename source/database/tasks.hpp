@@ -38,10 +38,9 @@ public:
 
 	virtual ~Task() {};
 
-	static int newId() {
-		static int counter = 0;
-		return ++counter;
-	}
+	static int& idCounter() { static int counter = 0; return counter; }
+	static int newId() { return ++idCounter(); }
+	static void reserveId(int id) { if (id > idCounter()) idCounter() = id; }
 
 	int id() const { return id_; };
 	void toggleDone() { done = !done; };
@@ -95,6 +94,8 @@ public:
 	void setDeadline(Date d) {
 		deadline = d;
 	}
+
+	friend class FileStorage;
 };
 
 class TaskTree : public Tree<Task> {
