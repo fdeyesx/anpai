@@ -106,3 +106,56 @@ public:
 		return cat->tasks.removeTask(*t);
 	}
 };
+
+class CategoryService {
+protected:
+	Database& db;
+
+	int nextId() {
+		int maxId = 0;
+		for (Listiterator<Category> it = db.categories.begin(); it != db.categories.end_it(); ++it) {
+			if ((*it).id > maxId) maxId = (*it).id;
+		}
+		return maxId + 1;
+	}
+public:
+	CategoryService(Database& db_): db(db_){}
+	~CategoryService() {}
+
+	Category& addCategory(std::string name){
+		if (name.empty()) throw InvalidArgument();
+		Category cat(nextId(), name);
+		db.categories.pushback(cat);
+
+		return *db.categories.find(cat.id);
+	}
+
+	bool renameCategory(int id, std::string name){
+		if (name.empty()) throw InvalidArgument();
+
+		Category* cat = db.categories.find(id);
+		if (cat == nullptr) return false;
+
+		cat->name = name;
+		return true;
+	}
+
+	bool removeCategory(int id) {
+		return db.categories.remove(id);
+	}
+
+	void moveUp(int id){
+		db.categories.moveUp(id);
+	}
+
+	void moveDown(int id) {
+		db.categories.moveDown(id);
+	}
+
+	Category* find(int id) {
+		return db.categories.find(id);
+	}
+	
+	CategoryList& list(){ return db.categories; }
+	int count() { return db.categories.getsize(); }
+};
