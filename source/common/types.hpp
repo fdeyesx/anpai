@@ -2,7 +2,7 @@
 #include <iostream>
 
 struct Vec2 {
-	float x = 0.f; float y = 0.f;
+    float x = 0.f; float y = 0.f;
 
     Vec2() = default;
     Vec2(float px, float py) : x(px), y(py) {}
@@ -40,27 +40,26 @@ struct Color {
     int a = 255;
 
     Color() = default;
-    Color(char pr, char pg, char pb, char pa = 255)
-        : r(pr), g(pg), b(pb), a(pa) {
-    }
 
-    Color hex(int rgb, int alpha = 255) {
+    Color(int pr, int pg, int pb, int pa = 255) : r(pr), g(pg), b(pb), a(pa) {}
+
+    static Color hex(int rgb, int alpha = 255) {
         return Color((rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF, alpha);
     }
 
     Color withAlpha(int alpha) const { return Color(r, g, b, alpha); }
 
-    Color mixColors(const Color& a, const Color& b, int t) {
+    static Color mixColors(const Color& a, const Color& b, int t) {
         if (t < 0) t = 0;
         else if (t > 255) t = 255;
         auto lerp = [t](int x, int y) {
-            return (x + (y - x) * t)/255;
-        };
+            return (x + (y - x) * t) / 255;
+            };
         return Color(lerp(a.r, b.r), lerp(a.g, b.g), lerp(a.b, b.b), lerp(a.a, b.a));
     }
 };
 
-enum MouseButton {
+enum class MouseButton {
     Left, Right, Middle
 };
 
@@ -98,25 +97,33 @@ struct Date {
     Date() = default;
     Date(int d, int m, int y) : day(d), month(m), year(y) {}
 
-    bool operator<(const Date& o) {
+    bool operator<(const Date& o) const {
         if (year != o.year)   return year < o.year;
         if (month != o.month) return month < o.month;
         return day < o.day;
     }
 
-    bool operator==(const Date& o) {
+    bool operator>(const Date& o) const {
+        return o < *this;
+    }
+
+    bool operator==(const Date& o) const {
         return year == o.year && month == o.month && day == o.day;
     }
 
-    bool isLeap(int y) { return (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0); }
+    bool operator!=(const Date& o) const {
+        return !(*this == o);
+    }
 
-    int daysInMonth(int m, int y) {
+    bool isLeap(int y) const { return (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0); }
+
+    int daysInMonth(int m, int y) const {
         int days[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
         if (m < 1 || m > 12) return 0;
         return (m == 2 && isLeap(y)) ? 29 : days[m - 1];
     }
 
-    bool isValid() {
+    bool isValid() const {
         return year > 1970 && year < 3000 && month >= 1 && month <= 12 && day >= 1 && day <= daysInMonth(month, year);
     }
 };
