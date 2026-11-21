@@ -47,7 +47,7 @@ protected:
 
     void merge(int left, int right, int mid) {
         int n1 = mid - left + 1; int n2 = right - mid;
-        T* t1 = new int[n1]; T* t2 = new int[n2];
+        T* t1 = new T[n1]; T* t2 = new T[n2];
 
         Arrayiterator<T> array_l; array_l.current = data + left;
         Arrayiterator<T> array_r; array_r.current = data + mid + 1;
@@ -118,7 +118,7 @@ public:
         for (int i = 0; i < size; i++) data[i] = arr.data[i];
     }
 
-    T& operator[](int index) {
+    const T& operator[](int index) {
         if (index < 0 || index >= size) throw IndexOutOfRange();;
         return data[index];
     }
@@ -145,7 +145,7 @@ public:
     T pop_front() {
         if (size == 0) throw EmptyContainer();
         T val = data[0];
-        for (int i = 0; i < size; i++) data[i] = data[i + 1];
+        for (int i = 0; i+1 < size; i++) data[i] = data[i + 1];
         size--;
         return val;
     }
@@ -174,9 +174,9 @@ public:
 
 template <typename T>
 ostream& operator<< (ostream& out, const Array<T>& arr) {
-    for (int i = 0; i < arr.size; ++i) {
-        out << arr.data[i];
-        if (i + 1 < arr.size) out << " ";
+    for (int i = 0; i < arr.getsize(); ++i) {
+        out << arr[i];
+        if (i + 1 < arr.getsize()) out << " ";
     }
     return out;
 }
