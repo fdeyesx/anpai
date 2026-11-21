@@ -16,6 +16,21 @@ struct Vec2 {
 
 struct Rect {
     Vec2 pos; Vec2 size;
+
+    Rect() = default;
+    Rect(Vec2 p, Vec2 s) : pos(p), size(s) {}
+    Rect(float px, float py, float w, float h) : pos(px, py), size(w, h) {}
+
+    float right() { return pos.x + size.x; }
+    float bottom() { return pos.y + size.y; }
+    Vec2 center() { return Vec2(pos.x + size.x * 0.5f, pos.y + size.y * 0.5f); }
+
+    bool contains(Vec2 p) {
+        return p.x >= pos.x && p.x <= right() && p.y >= pos.y && p.y <= bottom();
+    }
+
+    Rect shrunk(float d) { return Rect(pos.x + d, pos.y + d, size.x - 2 * d, size.y - 2 * d); }
+    Rect moved(Vec2 d) { return Rect(pos + d, size); }
 };
 
 struct Color {
@@ -83,5 +98,25 @@ struct Date {
     Date() = default;
     Date(int d, int m, int y) : day(d), month(m), year(y) {}
 
+    bool operator<(const Date& o) {
+        if (year != o.year)   return year < o.year;
+        if (month != o.month) return month < o.month;
+        return day < o.day;
+    }
 
+    bool operator==(const Date& o) {
+        return year == o.year && month == o.month && day == o.day;
+    }
+
+    bool isLeap(int y) { return (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0); }
+
+    int daysInMonth(int m, int y) {
+        int days[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+        if (m < 1 || m > 12) return 0;
+        return (m == 2 && isLeap(y)) ? 29 : days[m - 1];
+    }
+
+    bool isValid() {
+        return year > 1970 && year < 3000 && month >= 1 && month <= 12 && day >= 1 && day <= daysInMonth(month, year);
+    }
 };
