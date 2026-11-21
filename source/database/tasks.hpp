@@ -28,7 +28,20 @@ public:
 		deadline = Date();
 	};
 
+	Task(int id, std::string t, Priority p, Date d) {
+		id_ = id;
+		title = t;
+		priority = p;
+		done = false;
+		deadline = d;
+	};
+
 	virtual ~Task() {};
+
+	static int newId() {
+		static int counter = 0;
+		return ++counter;
+	}
 
 	int id() const { return id_; };
 	void toggleDone() { done = !done; };
@@ -40,8 +53,14 @@ public:
 
 	int doneCount() const { return done ? 1 : 0; }
 
-	void setDeadline(time_t d) {deadline = d;}
-	Date getDeadline() const {return deadline;}
+	void setDeadline(time_t d) {
+		std::tm timeinfo;
+		localtime_s(&timeinfo, &d);
+		deadline = Date(timeinfo.tm_mday, timeinfo.tm_mon + 1, timeinfo.tm_year + 1900);
+	}
+	Date getDeadline() const { return deadline; }
+
+	Priority getPriority() const { return priority; }
 
 	bool isOverdue() {
 		if (done) return false;
@@ -68,6 +87,14 @@ public:
 
 		return out.str();
 	}
+
+	void setPriority(Priority p) {
+		priority = p;
+	}
+
+	void setDeadline(Date d) {
+		deadline = d;
+	}
 };
 
 class TaskTree : public Tree<Task> {
@@ -75,8 +102,22 @@ public:
 	TaskTree() = default;
 	~TaskTree() {};
 
-	void addRoot(Task& t) { this->addChild(t, t); }
-	void addChild(Task& parent, Task& t) { this->addChild(parent, t); ; }
+	Task* addRoot(Task& t) {
+		if (this->getRoot() == nullptr) {
+			return &(this->addRootNode(t)->value);
+		}
+		return addChild(this->getRoot()->value, t);
+	}
+
+	Task* addChild(Task& parent, Task& t) {
+		typename Tree<Task>::Node* node = Tree<Task>::addChild(parent, t);
+		if (node == nullptr) return nullptr;
+		return &(node->value);
+	}
+
+	Task* findById(int id) {
+		return findByIdFrom(this->getRoot(), id);
+	}
 
 	Task* findTask(Task& t, Task& value) {
 		Node* node = this->findNode(this->getRoot(), value);
@@ -89,21 +130,31 @@ public:
 	}
 
 	bool removeTask(Task& t) {
-		return this->contains(t);
+		return Tree<Task>::remove(t);
 	}
 
-	int totalCount(){
+	int totalCount() {
 		return countNodes(this->getRoot());
 	}
 
-	double progress(){
+	double progress() {
 		int total = totalCount();
 		if (total == 0) return 0.0;
 		int done = countDone(this->getRoot());
 		return (double)done / total;
 	}
 private:
-	int countNodes(typename Tree<Task>::Node* node){
+	Task* findByIdFrom(typename Tree<Task>::Node* node, int id) {
+		if (!node) return nullptr;
+		if (node->value.id() == id) return &(node->value);
+		for (int i = 0; i < node->children.getsize(); ++i) {
+			Task* found = findByIdFrom(node->children[i], id);
+			if (found) return found;
+		}
+		return nullptr;
+	}
+
+	int countNodes(typename Tree<Task>::Node* node) {
 		if (!node) return 0;
 		int count = 1;
 		for (int i = 0; i < node->children.getsize(); i++) {
@@ -128,20 +179,20 @@ public:
 	std::string name;
 	TaskTree tasks;
 
-	Category(int i, std::string n): id(i), name(n){}
+	Category(int i, std::string n) : id(i), name(n) {}
 
 	bool operator==(const Category& other) const {
 		return id == other.id;
 	}
-	
-	double progres(){ 
-		return tasks.progress(); 
+
+	double progres() {
+		return tasks.progress();
 	}
 	int totalTasks() {
 		return tasks.totalCount();
 	}
-	int doneTasks(){
-		return tasks.progress() * tasks.totalCount();
+	int doneTasks() {
+		return (int)(tasks.progress() * tasks.totalCount());
 	}
 
 };
@@ -155,18 +206,21 @@ public:
 		this->push_back(c);
 	}
 
-	bool remove(int id){
-		Category *c = find(id);
+	bool remove(int id) {
+		Category* c = find(id);
+		if (c == nullptr) return false;
 		return List<Category>::remove(*c);
 	}
 
 	void moveUp(int id) {
 		Category* c = find(id);
+		if (c == nullptr) return;
 		List<Category>::moveUp(*c);
 	}
 
 	void moveDown(int id) {
 		Category* c = find(id);
+		if (c == nullptr) return;
 		List<Category>::moveDown(*c);
 	}
 
