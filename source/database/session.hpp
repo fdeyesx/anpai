@@ -1,7 +1,8 @@
 #pragma once
 #include <iostream>
 #include <ctime>
-#include "vector.hpp"
+#include "common/vector.hpp"
+#include "common/types.hpp"
 
 enum SessionType {
 	Work, Short_break, Long_break
@@ -10,7 +11,7 @@ enum SessionType {
 struct Session {
 	int minutes;
 	SessionType type;
-	time_t date;
+	Date date;
 	int task_id;
 };
 
@@ -19,14 +20,19 @@ protected:
 	Array<Session> sessions;
 public:
 	SessionLog() = default;
-	~SessionLog();
+	~SessionLog() = default;
 	
 	void add(Session& s) {
 		sessions.push_back(s);
 	}
 	
-	Array<Session> filter() {}
+	//Array<Session> filter() {};
 
-	void save(){}
-	void load(){}
+	void save() {};
+	void load() {};
+
+	int getCount() const { return sessions.getsize(); }
+	Session getSession(int index) { return sessions[index]; }
+
+	friend class FileStorage;
 };
