@@ -19,15 +19,22 @@ public:
 	Tree() { root = nullptr; }
 	virtual ~Tree() { clear(root); }
 
-	void addChild(T parentValue, T childvalue) {
+	Node* addChild(T parentValue, T childvalue) {
 		if (root == nullptr) {
 			root = new Node(parentValue);
 		}
 
 		Node* parent = findNode(root, parentValue);
-		if (parent == nullptr) return;
+		if (parent == nullptr) return nullptr;
 
-		parent->children.pushback(new Node(childvalue));
+		Node* node = new Node(childvalue);
+		parent->children.push_back(node);
+		return node;
+	}
+
+	Node* addRootNode(T value) {
+		if (root == nullptr) root = new Node(value);
+		return root;
 	}
 
 	Node* findNode(Node* node, T value) {
@@ -36,6 +43,19 @@ public:
 
 		for (int i = 0; i < node->children.getsize(); i++) {
 			Node* found = findNode(node->children[i], value);
+			if (found) return found;
+		}
+		return nullptr;
+	}
+
+	Node* findParent(Node* node, T value) {
+		if (node == nullptr) return nullptr;
+
+		for (int i = 0; i < node->children.getsize(); i++) {
+			if (node->children[i]->value == value) return node;
+		}
+		for (int i = 0; i < node->children.getsize(); i++) {
+			Node* found = findParent(node->children[i], value);
 			if (found) return found;
 		}
 		return nullptr;
@@ -74,6 +94,7 @@ public:
 				for (int j = i; j < parent->children.getsize() - 1; j++) {
 					parent->children[j] = parent->children[j + 1];
 				}
+				parent->children.pop_back();
 				result = true;
 			}
 		}
