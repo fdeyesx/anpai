@@ -3,6 +3,7 @@
 #include "common/vector.hpp"
 #include "common/list.hpp"
 #include "common/tree.hpp"
+#include "common/types.hpp"
 #include <ctime>
 #include <sstream>
 
@@ -15,7 +16,7 @@ protected:
 	int id_;
 	std::string title;
 	Priority priority;
-	time_t deadline;
+	Date deadline;
 	bool done;
 
 public:
@@ -24,6 +25,7 @@ public:
 		title = "";
 		priority = medium;
 		done = false;
+		deadline = Date();
 	};
 
 	virtual ~Task() {};
@@ -39,36 +41,30 @@ public:
 	int doneCount() const { return done ? 1 : 0; }
 
 	void setDeadline(time_t d) {deadline = d;}
-	time_t getDeadline() const {return deadline;}
+	Date getDeadline() const {return deadline;}
 
 	bool isOverdue() {
-		if (done || deadline == 0) return false;
+		if (done) return false;
 
 		time_t now = time(nullptr);
-		return now > deadline;
+		std::tm timeinfo;
+		localtime_s(&timeinfo, &now);
+
+		Date today(timeinfo.tm_mday, timeinfo.tm_mon + 1, timeinfo.tm_year + 1900);
+		return today > deadline;
 	}
 
 	std::string getDeadlineString() const {
-		if (deadline == 0) return "None\n";
-
-		std::tm timeinfo;
-		localtime_s(&timeinfo, &deadline);
-		int year = timeinfo.tm_year + 1900; 
-		int month = timeinfo.tm_mon + 1;
-		int day = timeinfo.tm_mday;
-		int hour = timeinfo.tm_hour;
-		int min = timeinfo.tm_min;
+		if (deadline.year == 2026 && deadline.month == 1 && deadline.day == 1) {
+			return "None\n";
+		}
 
 		std::ostringstream out;
-		out << year << "-";
-		if (month < 10) out << "0";
-		out << month << "-";
-		if (day < 10) out << "0";
-		out << day << " ";
-		if (hour < 10) out << "0";
-		out << hour << ":";
-		if (min < 10) out << "0";
-		out << min << "\n";
+		out << deadline.year << "-";
+		if (deadline.month < 10) out << "0";
+		out << deadline.month << "-";
+		if (deadline.day < 10) out << "0";
+		out << deadline.day << "\n";
 
 		return out.str();
 	}
