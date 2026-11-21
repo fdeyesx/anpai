@@ -100,4 +100,6 @@ public:
 		}
 		return result;
 	}
+
+	friend class FileStorage;
 };
