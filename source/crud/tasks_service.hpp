@@ -2,13 +2,30 @@
 #include "database/tasks.hpp"
 #include "database/session.hpp"
 #include "database/settings.hpp"
+#include "database/file_storage.hpp"
 
 struct Database {
 	CategoryList categories;
 	SessionLog sessions;
 	Settings settings;
-	void load();
-	void saveAll();
+
+	void load() {
+		FileStorage storage;
+		std::string tasksPath = "tasks.txt";
+		std::string sessionsPath = "sessions.txt";
+
+		storage.loadTasks(categories, tasksPath);
+		storage.loadSessions(sessionsPath, sessions);
+	}
+
+	void saveAll() {
+		FileStorage storage;
+		std::string tasksPath = "tasks.txt";
+		std::string sessionsPath = "sessions.txt";
+
+		storage.saveTasks(categories, tasksPath);
+		storage.saveSession(sessionsPath, sessions);
+	}
 };
 
 class TaskService {
