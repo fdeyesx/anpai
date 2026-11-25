@@ -4,12 +4,6 @@
 #include "common/vector.hpp"
 #include "common/types.hpp"
 
-#include <iostream>
-#include <string> 
-#include <SFML/Graphics.hpp>
-#include "vector.hpp"
-#include "types.hpp"
-
 #define FSIZE 2
 #define POINT_COUNT 20
 
