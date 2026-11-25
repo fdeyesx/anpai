@@ -12,6 +12,17 @@ struct Vec2 {
     Vec2 operator*(float k) const { return Vec2(x * k, y * k); }
     bool operator==(const Vec2& o) const { return x == o.x && y == o.y; }
     bool operator!=(const Vec2& o) const { return !(*this == o); }
+
+    operator sf::Vector2f() const {
+        return sf::Vector2f(x, y);
+    }
+
+    operator sf::Vector2u() const {
+        return sf::Vector2u(
+            static_cast<int>(x),
+            static_cast<int>(y)
+        );
+    }
 };
 
 struct Rect {
@@ -31,6 +42,10 @@ struct Rect {
 
     Rect shrunk(float d) { return Rect(pos.x + d, pos.y + d, size.x - 2 * d, size.y - 2 * d); }
     Rect moved(Vec2 d) { return Rect(pos + d, size); }
+
+    operator sf::FloatRect() const {
+        return sf::FloatRect(sf::Vector2f(pos.x, pos.y), sf::Vector2f(size.x, size.y));
+    }
 };
 
 struct Color {
@@ -56,6 +71,15 @@ struct Color {
             return (x + (y - x) * t) / 255;
             };
         return Color(lerp(a.r, b.r), lerp(a.g, b.g), lerp(a.b, b.b), lerp(a.a, b.a));
+    }
+
+    operator sf::Color() const {
+        return {
+            static_cast<std::uint8_t>(r),
+            static_cast<std::uint8_t>(g),
+            static_cast<std::uint8_t>(b),
+            static_cast<std::uint8_t>(a)
+        };
     }
 };
 
