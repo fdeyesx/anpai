@@ -17,8 +17,9 @@ class Fonts {
 private:
 	sf::Font fonts_[FSIZE];
 	bool loaded_[2] = {false, false};
+	static Fonts* instance_;
 public:
-	Fonts() {}
+	Fonts() { instance_ = this; }
 
 	void load(std::string& displayPath, std::string& bodyPath) {
 		loaded_[0] = fonts_[0].openFromFile(displayPath);
@@ -26,11 +27,13 @@ public:
 		if (!loaded_[0] || !loaded_[1]) throw FontLoadFailed();
 	}
 	
-	sf::Font getFont(FontId id) {
+	static sf::Font& getFont(FontId id) {
 		int index = (id == Display) ? 0 : 1;
-		return fonts_[loaded_[index] ? index : 0];
+		return instance_->fonts_[instance_->loaded_[index] ? index : 0];
 	}
 };
+
+inline Fonts* Fonts::instance_ = nullptr;
 
 class widget {
 protected:
@@ -87,6 +90,13 @@ void drawRoundRect(sf::RenderTarget& target, sf::FloatRect r, float radius, sf::
 		corner.setPosition(sf::Vector2f(r.position.x + offsets[i][0] + radius, r.position.y + offsets[i][1] + radius));
 		target.draw(corner);
 	}
+}
+
+void drawShadow(sf::RenderTarget& target, sf::FloatRect r, float radius) {
+	sf::RectangleShape shadow(sf::Vector2f(r.size.x, r.size.y));
+	shadow.setPosition(sf::Vector2f(r.position.x + 4.f, r.position.y + 4.f));
+	shadow.setFillColor(sf::Color(0, 0, 0, 50)); // Полупрозрачный черный
+	target.draw(shadow);
 }
 
 void drawText(sf::RenderTarget& target, sf::Font& font, std::string text, Vec2 pos, int size, sf::Color color) {
@@ -158,7 +168,7 @@ public:
 	void draw(sf::RenderTarget& target) override {
 		if (!visible) return;
 
-		sf::Color fillc = fill;
+		Color currentFill = fill;
 		if (hovered) fill = Color(fill.r - 8, fill.g - 8, fill.b - 8, fill.a);
 
 		drawRoundRect(target, sf::FloatRect(pos, size), size.y * 0.5f, currentFill);
@@ -215,7 +225,7 @@ public:
 
 		const sf::FloatRect box(pos, size);
 		drawShadow(target, box, 14.f);
-		drawRoundRect(target, box, 14.f, paper));
+		drawRoundRect(target, box, 14.f, paper);
 
 		drawRoundRect(target, sf::FloatRect({ pos.x + 12.f, pos.y + 12.f }, { size.x - 24.f, 30.f }), 8.f, accent);
 
@@ -279,10 +289,9 @@ public:
 		}
 
 		if (!title.empty()) {
-			drawText(target, FontManager::get(Display), title, pos.x + 110.f, pos.y + size.y + 34.f, 32, Color(74, 59, 51));
+			drawText(target, Fonts::getFont(Display), title, { pos.x + 110.f, pos.y + size.y + 34.f }, 32, Color(74, 59, 51));
 		}
 	}
-};
 };
 
 class NavigationBar : public widget {
@@ -371,4 +380,5 @@ struct TabBar {
 	Array<std::string> titles;
 	int active = 0;
 };
+
 
