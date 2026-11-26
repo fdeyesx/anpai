@@ -118,10 +118,8 @@ public:
         for (int i = 0; i < size; i++) data[i] = arr.data[i];
     }
 
-    const T& operator[](int index) {
-        if (index < 0 || index >= size) throw IndexOutOfRange();;
-        return data[index];
-    }
+    T& operator[](int index) { return data[index]; }
+    const T& operator[](int index) const { return data[index]; }
 
     Array& operator= (const Array<T>& arr) {
         if (this == &arr) throw SelfAssignment();
