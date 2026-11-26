@@ -1,7 +1,10 @@
 #pragma once
 #include "common/vector.hpp"
+#include "common/list.hpp"
 #include "widget.hpp"
 #include "render/render.hpp"
+#include "crud/tasks_service.hpp"
+#include "gui/tasks_table.hpp"  
 
 class Scene {
 protected:
