@@ -17,6 +17,14 @@ public:
     virtual void onEnter() = 0;
     virtual void onExit() = 0;
     virtual std::string name() const = 0;
+
+    void addWidget(widget* w) {
+        widgets.push_back(w);
+    }
+
+    int widgetCount() const {
+        return widgets.getsize();
+    }
 };
 
 class SceneManager {
@@ -75,7 +83,7 @@ public:
     void update(float dt) override { (void)dt; }
 
     void draw(sf::RenderTarget& target) override {
-        target.clear(sf::Color(30, 30, 40));
+        target.clear(sf::Color(30, 30, 40)); // Фон
 
         for (int i = 0; i < widgets.getsize(); ++i) {
             widgets[i]->draw(target);
@@ -83,14 +91,43 @@ public:
     }
 
     std::string name() const override { return "MainScene"; }
-
-    void addWidget(widget* w) { widgets.push_back(w); }
-    int widgetCount() const { return widgets.getsize(); }
 };
 
 class TasksScene : public Scene {
+private:
+    Database& database;
+	TaskService taskService;
+	CategoryService categoryService;
+	TaskTable table;
+	Panel panel;
+	int currentCategoryId = 0;
 public:
-	void onEnter() override { std::cout << "Entered TasksScene\n"; }
+    TasksScene(Database& db): database(db), taskService(db), categoryService(db){
+        panel.setTitle("задачи");
+		panel.setAccent(Color(221, 237, 228));
+		panel.setPosition(Vec2(40.f, 240.f));
+		panel.setSize(Vec2(600.f, 400.f));
+
+		table.setService(&taskService);
+		table.setPosition(Vec2(60.f, 290.f));
+		table.setSize(Vec2(560.f, 330.f));
+
+		addWidget(&panel);
+		addWidget(&table);
+    }
+
+	void onEnter() override { 
+        std::cout << "Entered TasksScene\n"; 
+        int flag = 0;
+        if (currentCategoryId == 0) {
+			for (Listiterator<Category> it = database.categories.begin(); it != database.categories.end_it() && flag == 0; ++it) {
+				currentCategoryId = (*it).id;
+				flag++;
+			}
+		}
+		table.setCategory(categoryService.find(currentCategoryId));
+    }
+
 	void onExit() override { std::cout << "Left TasksScene\n"; }
 
 	void handleEvent(const Event& e) override {
@@ -106,19 +143,4 @@ public:
 	}
 
 	std::string name() const override { return "TasksScene"; }
-
-    void addWidget(widget* w) { widgets.push_back(w); }
-    int widgetCount() const { return widgets.getsize(); }
-};
-
-class SessionScene : public Scene{
-
-};
-
-class StatsScene : public Scene{
-
-};
-
-class SettingsScene : public Scene{
-
 };
