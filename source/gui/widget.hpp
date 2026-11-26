@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <string> 
 #include <SFML/Graphics.hpp>
@@ -15,7 +16,7 @@ private:
 public:
 	Fonts() { instance_ = this; }
 
-	void load(std::string& displayPath, std::string& bodyPath) {
+		void load(const std::string& displayPath, const std::string& bodyPath) {
 		loaded_[0] = fonts_[0].openFromFile(displayPath);
 		loaded_[1] = fonts_[1].openFromFile(bodyPath);
 		if (!loaded_[0] || !loaded_[1]) throw FontLoadFailed();
