@@ -121,11 +121,9 @@ public:
     };
 
     virtual void drawText(std::string text, Vec2 pos, int size, Color c, FontId font = FontId::Body) {
-        sf::Text sfText(Fonts::getFont(font), sf::String::fromUtf8(text.begin(), text.end()),size);
-        sfText.setString(text);
-        sfText.setCharacterSize(size);
+        sf::Text sfText(Fonts::getFont(font), sf::String::fromUtf8(text.begin(), text.end()), static_cast<unsigned>(size));
         sfText.setFillColor(sf::Color(c.r, c.g, c.b, c.a));
-        sfText.setPosition({ pos.x, pos.y });
+        sfText.setPosition(sf::Vector2f(pos.x, pos.y));
         window.draw(sfText);
     };
 
